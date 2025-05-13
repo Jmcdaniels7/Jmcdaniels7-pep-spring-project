@@ -30,9 +30,11 @@ public class SocialMediaController {
 
     //new user registration
     @PostMapping(value = "/register")
-    public @ResponseBody Account postNewUser(@RequestBody Account account)
+    public @ResponseBody Account postNewUser(@RequestBody String username, String Password)
     {
-        return accountService.persistAccount(account);
+        // Account account 
+        return accountService.persistAccount("", account);
+        
     }
 
     //user login

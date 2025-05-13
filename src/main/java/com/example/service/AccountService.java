@@ -13,11 +13,13 @@ import java.util.Optional;
 public class AccountService {
     AccountRepository accountRepository;
 
+    @Autowired
     public AccountService(AccountRepository accountRepository)
     {
         this.accountRepository = accountRepository;
     }
 
+    //readMe requirements here for username not blank etc.
     // new user registration
     public Account persistAccount(Account account)
     {
@@ -27,12 +29,14 @@ public class AccountService {
     // user login
     public Account loginAccount(String username, String password)
     {
+        return null;
         
     }
 
     //get user by id
     public Account getUserById(Integer id)
     {
+        return null;
 
     }
 }

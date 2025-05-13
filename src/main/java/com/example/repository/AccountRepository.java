@@ -12,9 +12,10 @@ import java.util.List;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Integer> {
 
-    // trying to make the save method
-    @Query("INSERT INTO account (username, password) values(:username, :password)")
-    Account save(Account account);
-    
+    //we need to do named queries here
+    // return type, method, parameters, semicolon
+
+    //finds account by id
+    Account findAccountByAccountId(int accountId);
 
 }
