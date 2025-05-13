@@ -50,20 +50,17 @@ public class MessageService {
         messageRepository.deleteById(id);
     }
 
-    public void updateMessage(Integer id, Message newMessage)
+    public void updateMessage(Integer id, String newMessage)
     {
         Optional<Message> optionalMessage = messageRepository.findById(id);
 
         if(optionalMessage.isPresent())
         {
             Message message = optionalMessage.get();
-            message.setMessageText(newMessage.getMessageText());
+            message.setMessageText(newMessage);
             messageRepository.save(message);
         }
-        else
-        {
-            return null;
-        }
+        
 
     }
 

@@ -25,8 +25,14 @@ public class AccountService {
     }
 
     // user login
-    public Account loginAccount(Account account, String username, String password)
+    public Account loginAccount(String username, String password)
     {
         
+    }
+
+    //get user by id
+    public Account getUserById(Integer id)
+    {
+
     }
 }
