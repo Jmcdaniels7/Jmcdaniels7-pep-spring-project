@@ -16,6 +16,12 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
     // return type, method, parameters, semicolon
 
     //finds account by id
-    Account findAccountByAccountId(int accountId);
+    Account findAccountByAccountId(Integer accountId);
+
+    //verify user
+    Account findAccountByUsernameAndPassword(String username, String password);
+
+    //finds account by username
+    Account findAccountByUsername(String username);
 
 }

@@ -16,49 +16,86 @@ public class MessageService {
     MessageRepository messageRepository;
     AccountRepository accountRepository;
 
-    public MessageService(MessageRepository messageRepository)
+    @Autowired
+    public MessageService(MessageRepository messageRepository, AccountRepository accountRepository)
     {
         this.messageRepository = messageRepository;
+        this.accountRepository = accountRepository;
     }
 
+    //new message added
     public Message persistMessage(Message message)
     {
-        //return messageRepository.save(message);
+        if(message.getMessageText().trim().length() > 255 || message.getMessageText().isEmpty())
+        {
+            return null;
+
+        }
+        //this line is causing a runtime exception, I know it is because message.getPostedBy() is null because if a user doesn't exist then there are no messages for that user. But if all we get is a message from the resquest body then how do we figure if a user exists?
+        else if(accountRepository.findAccountByAccountId(message.getPostedBy()) == null)
+        {
+            return null;
+        }
+        else
+        {
+            //.save() in jpaRepository library to save/add a record in the DB)
+            messageRepository.save(message);
+            return message;
+
+        }
+        
     }
 
     public List<Message> getAllMessages()
     {
-       // return messageRepository.findAll();
+        // findAll() in the jpaReposiotry library to find all records 
+       return messageRepository.findAll();
     }
 
-    public Message getMessageById(Integer id)
+    public Message getMessageById(int id)
     {
-        Optional<Message> optionalMessage = messageRepository.findById(id);
-
-        if(optionalMessage.isPresent())
-        {
-            return optionalMessage.get();
-        }
-        else
+        if(messageRepository.findMessageByMessageId(id) == null)
         {
             return null;
         }
-    }
-
-    public void deleteMessage(Integer id)
-    {
-        messageRepository.deleteById(id);
-    }
-
-    public void updateMessage(Integer id, String newMessage)
-    {
-        Optional<Message> optionalMessage = messageRepository.findById(id);
-
-        if(optionalMessage.isPresent())
+        else
         {
-            Message message = optionalMessage.get();
+            return messageRepository.findMessageByMessageId(id);
+        }
+    }
+
+    public Message deleteMessage(Integer id)
+    {
+        Message message = messageRepository.findMessageByMessageId(id);
+        if(message == null)
+        {
+            return null;
+
+        }
+        else
+        {
+            
+           messageRepository.delete(message);
+           return message;
+
+        }
+        
+    }
+
+    public int updateMessage(Integer id, String newMessage)
+    {
+        //ensuring a message is found by a messageId
+        Message message = messageRepository.findMessageByMessageId(id);
+
+        if(message == null || newMessage.isEmpty() || newMessage.trim().length() > 255)
+        {
+            return 0;
+        }
+        else
+        {
             message.setMessageText(newMessage);
             messageRepository.save(message);
+            return 1;
         }
         
 
@@ -66,16 +103,8 @@ public class MessageService {
 
     public List<Message> getUserMessages(Integer userId)
     {
-        //we could use findALL with messages are from userId?
-        Optional<Account> optionalAccount = accountRepository.findById(userId);
-
-        if(optionalAccount.isPresent())
-        {
-            Account account = optionalAccount.get();
-            // return all messages where posted_by = account.getAccountId()
-        }
-
-
-
+        
+        return messageRepository.findMessagesByPostedBy(userId);
+        
     }
 }

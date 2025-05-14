@@ -6,7 +6,9 @@ import com.example.service.AccountService;
 import com.example.service.MessageService;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
@@ -22,6 +24,7 @@ public class SocialMediaController {
     private AccountService accountService;
     private MessageService messageService;
 
+    @Autowired
     public SocialMediaController(AccountService accountService, MessageService messageService)
     {
         this.messageService = messageService;
@@ -30,63 +33,125 @@ public class SocialMediaController {
 
     //new user registration
     @PostMapping(value = "/register")
-    public @ResponseBody Account postNewUser(@RequestBody String username, String Password)
+    public @ResponseBody ResponseEntity<Account> postNewUser(@RequestBody Account account)
     {
-        // Account account 
-        return accountService.persistAccount("", account);
+        //checking to see if username already exists
+        if(accountService.getUserByUsername(account.getUsername()) != null)
+        {
+            return ResponseEntity.status(409).body(null);
+
+        }
         
+        //persisting a new account 
+        Account newAccount = accountService.persistAccount(account);
+
+        if (newAccount == null)
+        {
+            return ResponseEntity.status(400).body(null);
+
+        }
+
+        //if we get here then we have successfully created a new user
+        return ResponseEntity.status(200).body(newAccount);
+
     }
 
     //user login
     @PostMapping(value = "/login")
-    public @ResponseBody Account userLogin(@RequestBody String username, String password)
+    public @ResponseBody ResponseEntity<Account> userLogin(@RequestBody Account account)
     {
-        return accountService.loginAccount(username, password);
+        //verifying login
+        Account login = accountService.loginAccount(account.getUsername(), account.getPassword());
+
+        if(login == null)
+        {
+            return ResponseEntity.status(401).body(null);
+
+        }
+        
+        //if we get here then the login was successful
+        return ResponseEntity.status(200).body(login);
+
+        
     }
 
     //create new message
     @PostMapping(value = "/messages")
-    public @ResponseBody Message postNewMessage(@RequestBody Message message)
+    public @ResponseBody ResponseEntity<Message> postNewMessage(@RequestBody Message message)
     {
-        return messageService.persistMessage(message);
+        if(messageService.persistMessage(message) == null)
+        {
+            return ResponseEntity.status(400).body(message);
+        }
+        
+        //if we get here then the new message was persisted
+        return ResponseEntity.status(200).body(messageService.persistMessage(message));
+
+        
+        
     }
 
     // get all messages
     @GetMapping("/messages")
-    public @ResponseBody List<Message> getMessages()
+    public @ResponseBody ResponseEntity<List<Message>> getMessages()
     {
-        return messageService.getAllMessages();
+        if(messageService.getAllMessages().isEmpty())
+        {
+            return ResponseEntity.status(200).body(messageService.getAllMessages());
+
+        }
+        
+        //if we get here the there are messages records
+        return ResponseEntity.status(200).body(messageService.getAllMessages());
+        
 
     }
 
     //get message by message id
     @GetMapping("/messages/{messageId}")
-    public @ResponseBody Message getMessageByID(@PathVariable Integer messageId)
+    public @ResponseBody ResponseEntity<Message> getMessageByID(@PathVariable int messageId)
     {
-        return messageService.getMessageById(messageId);
+        return ResponseEntity.status(200).body(messageService.getMessageById(messageId));
+        
     }
 
     //delete message by message id
     @DeleteMapping("/messages/{messageId}")
-    public @ResponseBody void deleteMessageById(@PathVariable Integer messageId)
+    public @ResponseBody ResponseEntity<String> deleteMessageById(@PathVariable Integer messageId)
     {
-        messageService.deleteMessage(messageId);
+        if(messageService.deleteMessage(messageId) == null)
+        {
+            return ResponseEntity.status(200).body("");
+
+        }
+        
+        //if we get here then we have succesfully deleted a row
+        return ResponseEntity.status(200).body("1");
+
+        
     }
 
     //update message by id
     @PatchMapping("/messages/{messageId}")
-    public @ResponseBody void updateMessageById(@PathVariable Integer messageId, String newMessage)
+    public @ResponseBody ResponseEntity<Integer> updateMessageById(@PathVariable Integer messageId, @RequestBody Message message)
     {
-        messageService.updateMessage(messageId, newMessage);
+        if(messageService.updateMessage(messageId, message.getMessageText()) == 0)
+        {
+            return ResponseEntity.status(400).body(0);
+
+        }
+        
+        //if we ger here then we have succefully updated a message record
+        return ResponseEntity.status(200).body(1);
+        
     }
 
     //get all messages by a particular user from accounts entity(AKA posted_by in Message entity)
     @GetMapping("/accounts/{accountId}/messages")
-    public @ResponseBody List<Message> getAllUserMessages(@PathVariable Integer accountId)
+    public @ResponseBody ResponseEntity<List<Message>> getAllUserMessages(@PathVariable Integer accountId)
     {
-        //Account account = accountService.getUserById(accountId);
-
-        return messageService.getUserMessages(accountId);
+        return ResponseEntity.status(200).body(messageService.getUserMessages(accountId));
+        
     }
 
 

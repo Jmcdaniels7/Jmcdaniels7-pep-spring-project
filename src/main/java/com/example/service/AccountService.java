@@ -23,20 +23,57 @@ public class AccountService {
     // new user registration
     public Account persistAccount(Account account)
     {
-       return accountRepository.save(account);
+        if(account.getPassword().trim().length() < 4 || account.getUsername().isEmpty())
+        {
+            return null;
+
+        }
+        else
+        {
+            accountRepository.save(account);
+            return account;
+        }
+       
     }
 
     // user login
     public Account loginAccount(String username, String password)
     {
-        return null;
+        Account account = accountRepository.findAccountByUsernameAndPassword(username, password);
+        if(account != null)
+        {
+            return account;
+
+        }
+        else
+        {
+            return null;
+
+        }
+        
         
     }
 
     //get user by id
     public Account getUserById(Integer id)
     {
-        return null;
+        if(accountRepository.findAccountByAccountId(id) == null)
+        {
+            return null;
 
+        }
+        else
+        {
+            return accountRepository.findAccountByAccountId(id);
+
+        }
+        
+
+    }
+
+    //find account by username boolean
+    public Account getUserByUsername(String username)
+    {
+        return accountRepository.findAccountByUsername(username);
     }
 }
